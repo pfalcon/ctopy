@@ -1032,6 +1032,7 @@ final_transformations = (
     (r"\n[ \t]*}%(eol)s", r""),
     (r"(?<!=\n)\n{\n", r"\n"),	# Start-of-line brace that's not an initializer
     (r"%% \(,(%(ind)s)", r"%\1("),
+    (r"not \(not \((.+)\)\)", r"\1"),
     )
 
 def single_apply(transforms, text):

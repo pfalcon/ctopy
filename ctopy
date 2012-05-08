@@ -963,6 +963,8 @@ post_transformations = (
     (r"#define\s+(%(id)s)\(([^)]*)\)\s+([^(].*)", r"def \1(\2):\t\3"),
     # control structure
     (r"\bif *\((.*)\)(\s*{)?", r"if \1:"),
+    (r"\bdo\s*{", r"while True:"),
+    (r"}\s*while\s*(\(.*\));", r"if not \1: break	# DO-WHILE TERMINATOR -- INDENTATION IS PROBABLY WRONG"), 
     (r"\bwhile *\((.*)\)(\s*{)?", r"while \1:"), 
     (r"\bwhile 1:", r"while True:"),
     (r"\bfor \(;;\)(\s*{)?", r"while True:"),
@@ -977,8 +979,6 @@ post_transformations = (
     (r"else if", r"elif"),
     (r"(?:} )?else\s*{", r"else"),
     (r"(?<!#)else", r"else:"),
-    (r"\bdo\s*{", r"while True:"),
-    (r"}\s*while\s*(\(.*\));", r"if not \1: break	# DO-WHILE TERMINATOR -- INDENTATION IS PROBABLY WRONG"), 
     (r"switch *\((.*)\)(\s*{)?", r"switch \1:"),# Not Python, but less ugly
     # constants
     (r"\btrue\b", r"True"),	# C99

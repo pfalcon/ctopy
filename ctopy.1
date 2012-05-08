@@ -1,0 +1,91 @@
+'\" t
+.\"     Title: ctopy
+.\"    Author: [see the "AUTHORS" section]
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 10/19/2010
+.\"    Manual: Development Tools
+.\"    Source: ctopy
+.\"  Language: English
+.\"
+.TH "CTOPY" "1" "10/19/2010" "ctopy" "Development Tools"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ctopy \- a quick and dirty C to Python translator)
+.SH "SYNOPSIS"
+.HP \w'\fBctopy\fR\ 'u
+\fBctopy\fR
+.SH "DESCRIPTION"
+.PP
+ctopy automates the parts of translating C source code to Python source code that are difficult for a human but easy for a machine\&. This allows a human programmer to concentrate on the parts of the translation that actually require human attention\&.
+.PP
+ctopy uses regular expressions rather than actually parsing the C, so it is easily confused by syntactically invalid C or even irregular indentation styles\&. On the other hand, this approach makes it easier to preserve the location of comments\&.
+.PP
+ctopy relies on the fact that C and Python have fundamentally similar constant and expression syntax; the only parts of C expressions that don\*(Aqt map over in a completely trivial way are ?: and comma expressions\&. These will be passed through unaltered\&. Exception: passing a comma expression as an argument to a C library function call may confuse ctopy into translating the function call incorrectly\&.
+.PP
+ctopy also relies on the fact that C is normally indented in a way that indicates its block structure\&. It expects code to be indented in one of the canonical (K&R or Berkeley/C++) styles\&. Running it on GNU\-style code is not recommended\&. To avoid problems, run your code through
+\fBindent\fR(1)
+before handing it to copy;
+\fBindent \-orig\fR
+or
+\fBindent \-kr\fR
+should produce good results\&.
+.PP
+Finally, ctopy relies on the fact that C and Python have several control structures that are both syntactically and semantically similar\&. It translates if/else, while, and do/while (the termination clause in each do/while will require re\-indenting)\&. It doesn\*(Aqt try to translate switch/case statements\&.
+.PP
+ctopy will translate C for loops that map directly to a Python loop of the form "for var in range(maxval)" or "for var in range(minval, maxval)", where minval and maxval may be expressions\&. More complex loops it will pass through unaltered\&. It recognizes C idioms for looping forever and translates those into "while True:"\&.
+.PP
+ctopy throws away all type information and removes all variable declarations that don\*(Aqt have initializers\&. It maps the C \*(Aq\->\*(Aq operator as well as the C \*(Aq\&.\*(Aq operator to Python \*(Aq\&.\*(Aq; this works because in Python all non\-scalars are passed by reference\&. The C99 boolean constants \*(Aqtrue\*(Aq and \*(Aqfalse\*(Aq are mapped to Python \*(AqTrue\*(Aq and \*(AqFalse\*(Aq
+.PP
+ctopy does not translate C structure and union declarations\&. It cannot tell the member declarations in these from variable declarations, and will try to remove them\&. Nor will ctopy translate most structure initializations correctly\&. Important exception: it can translate one\-dimensional array initializers containing only scalars into Python tuples\&.
+.PP
+ctopy does translate preprocessor defines and certain simple uses of enum types into Python\&. It also translates preprocessor macros with arguments into Python functions\&. Preprocessor macros that expand to syntactically invalid C fragments will be heedlessly translated into broken Python\&.
+.PP
+ctopy knows a large number of mappings between C library headers and Python standard library modules, and applies them\&. Where possible, it translates C library functions to equivalent Python standard library calls\&. It emits warnings to standard error when calling conventions don\*(Aqt match\&.
+.PP
+You can give ctopy hints\&. A hint may be a line in a file pulled in by the \-h option, or tokens in a source file comment beginning with \*(Aq$ctopy\*(Aq\&. Available hints are as follows:
+.PP
+type <name>
+.RS 4
+Treat <name> as a scalar type, not requiring initialization except by first assignment\&.
+.RE
+.PP
+class <name>
+.RS 4
+Treat name as a class; variables of this type must be initialized by calling the class\*(Aqs contructor and assigning the returned value to the variable\&.
+.RE
+.PP
+stringify <name>
+.RS 4
+When this name occurs surrounded by word boundaries, put string quotes around it\&. Useful for translating enumerated\-type values into string literals, which Python has as a first\-class type\&.
+.RE
+.PP
+printflike <name>
+.RS 4
+declarates that a function is like printf; its string arguments containing, if any, should be treated like printf formats and their arg lists replaced with % followed by a tuple containing the args\&.
+.RE
+.SH "AUTHORS"
+.PP
+Eric S\&. Raymond <esr@snark\&.thyrsus\&.com>\&. See ESR\*(Aqs home page at
+\m[blue]\fBhttp://www\&.catb\&.org/~esr/\fR\m[]
+for updates and other resources\&.
+.SH "BUGS"
+.PP
+

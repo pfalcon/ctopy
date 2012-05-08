@@ -1,0 +1,137 @@
+<!DOCTYPE refentry PUBLIC 
+   "-//OASIS//DTD DocBook XML V4.1.2//EN"
+   "docbook/docbookx.dtd">
+<refentry id='ctopy.1'>
+<refmeta>
+<refentrytitle>ctopy</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo class='date'>Oct 20 2006</refmiscinfo>
+<refmiscinfo class='source'>ctopy</refmiscinfo>
+<refmiscinfo class='productname'>ctopy</refmiscinfo>
+<refmiscinfo class='manual'>Development Tools</refmiscinfo>
+</refmeta>
+<refnamediv id='name'>
+<refname>ctopy</refname>
+<refpurpose>a quick and dirty C to Python translator)</refpurpose>
+</refnamediv>
+<refsynopsisdiv id='synopsis'>
+
+<cmdsynopsis>
+  <command>ctopy</command>
+</cmdsynopsis>
+
+</refsynopsisdiv>
+
+<refsect1 id='description'><title>DESCRIPTION</title>
+
+<para>ctopy automates the parts of translating C source code to Python
+source code that are difficult for a human but easy for a
+machine. This allows a human programmer to concentrate on the
+parts of the translation that actually require human attention.</para>
+
+<para>ctopy uses regular expressions rather than actually parsing the
+C, so it is easily confused by syntactically invalid C or even
+irregular indentation styles. On the other hand, this approach makes
+it easier to preserve the location of comments.</para>
+
+<para>ctopy relies on the fact that C and Python have fundamentally
+similar constant and expression syntax; the only parts of C
+expressions that don't map over in a completely trivial way are ?: and
+comma expressions.  These will be passed through unaltered.
+Exception: passing a comma expression as an argument to a C library
+function call may confuse ctopy into translating the function call
+incorrectly.</para>
+
+<para>ctopy also relies on the fact that C is normally indented in a
+way that indicates its block structure.  It expects code to be
+indented in one of the canonical (K&amp;R or Berkeley/C++) styles.
+Running it on GNU-style code is not recommended.  To avoid problems,
+run your code through
+<citerefentry><refentrytitle>indent</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+before handing it to copy; <command>indent -orig</command> or
+<command>indent -kr</command> should produce good results.</para>
+
+<para>Finally, ctopy relies on the fact that C and Python have several
+control structures that are both syntactically and semantically
+similar.  It translates if/else, while, and do/while (the termination
+clause in each do/while will require re-indenting).  It doesn't try to
+translate switch/case statements.</para>
+
+<para>ctopy will translate C for loops that map directly to a Python
+loop of the form "for var in range(maxval)" or "for var in
+range(minval, maxval)", where minval and maxval may be expressions.
+More complex loops it will pass through unaltered.  It recognizes C
+idioms for looping forever and translates those into "while
+True:".</para>
+
+<para>ctopy throws away all type information and removes all variable
+declarations that don't have initializers.  It maps the C '->'
+operator as well as the C '.' operator to Python '.'; this works
+because in Python all non-scalars are passed by reference.  The C99
+boolean constants 'true' and 'false' are mapped to Python 'True' and
+'False'</para>
+
+<para>ctopy does not translate C structure and union declarations.  It
+cannot tell the member declarations in these from variable
+declarations, and will try to remove them.  Nor will ctopy translate
+most structure initializations correctly.  Important exception: it can
+translate one-dimensional array initializers containing only scalars
+into Python tuples.</para>
+
+<para>ctopy does translate preprocessor defines and certain simple
+uses of enum types into Python.  It also translates preprocessor
+macros with arguments into Python functions.  Preprocessor macros that
+expand to syntactically invalid C fragments will be heedlessly
+translated into broken Python.</para>
+
+<para>ctopy knows a large number of mappings between C library headers
+and Python standard library modules, and applies them. Where possible,
+it translates C library functions to equivalent Python standard
+library calls.  It emits warnings to standard error when calling
+conventions don't match.</para>
+
+<para>You can give ctopy hints.  A hint may be a line in a file pulled in
+by the -h option, or tokens in a source file comment beginning with
+'$ctopy'.  Available hints are as follows:</para>
+
+<variablelist>
+<varlistentry>
+<term>type &lt;name&gt;</term>
+<listitem><para>Treat &lt;name&gt; as a scalar type, not requiring
+initialization except by first assignment.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>class &lt;name&gt;</term>
+<listitem><para>Treat name as a class; variables of this type
+must be initialized by calling the class's contructor
+and assigning the returned value to the variable.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>stringify &lt;name&gt;</term>
+<listitem><para>When this name occurs surrounded by word boundaries,
+put string quotes around it.  Useful for translating enumerated-type
+values into string literals, which Python has as a first-class
+type.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>printflike &lt;name&gt;</term>
+<listitem><para>declarates that a function is like printf; its string
+arguments containing, if any, should be treated like printf formats
+and their arg lists replaced with % followed by a tuple containing the
+args.</para></listitem>
+</varlistentry>
+</variablelist>
+</refsect1>
+
+<refsect1 id='authors'><title>AUTHORS</title>
+<para>Eric S. Raymond &lt;esr@snark.thyrsus.com&gt;.  See ESR's home
+page at <ulink
+url='http://www.catb.org/~esr/'>http://www.catb.org/~esr/</ulink> for
+updates and other resources.</para>
+</refsect1>
+
+<refsect1 id='bugs'><title>BUGS</title>
+<para></para>
+</refsect1>
+</refentry>
+

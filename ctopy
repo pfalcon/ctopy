@@ -15,10 +15,12 @@ stringify = []
 printflike = ["printf", "sprintf", "vfprintf",
               "printw", "mvprintw", "wprintw", "mvwprintw"]
 
+types = ["void", "int", "bool", "char", "short", "double", "long", "float", "time_t", "FILE", "WINDOW"]
+
 shorthands = {
     'id' : r"[a-zA-Z_][a-zA-Z0-9._]*",
     'exp' : r"[a-zA-Z0-9._\-+\*/]+",
-    'type' : r"\bvoid\b|\bint\b|\bbool\b|\bchar\b|\bshort\b|\bdouble\b|\blong\b|\bfloat\b|\btime_t\b|\bFILE\b|bWINDOW\b",
+    'type' : r"\b" + r"\b|\b".join(types) + r"\b",
     'class' : r"\b__dummyclass__\b",
     'ind' : r"(\n[ \t]*)",		# Whitespace at start of line
     'eol' : r"[ \t]*(?=\n|\Z)",		# Whitespace to end of line or comment

@@ -1216,7 +1216,7 @@ def ctopy(input):
         sys.stderr.write("ctopy: pathological string literal at %d.\n" % boundaries[i])
         raise SystemExit, 1
     if debug:
-        "Enumeration processing"
+        print "Enumeration processing"
     state = "plain"
     for (i, region) in enumerate(regions):
         # first compute a parse state
@@ -1260,7 +1260,7 @@ def ctopy(input):
                         val += 1
                 regions[i] = "\n".join(txt)
     if debug:
-        "Final transformations begin"
+        print "Final transformations begin"
     regions = map(lambda r: repeat_apply(final_transformations, r),regions)
     text = "".join(regions)
     if importlist:
